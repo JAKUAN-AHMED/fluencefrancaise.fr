@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\{
     StudentExamPrepController,
     TutorExamPrepController,
     ClientErrorLogController,
+    DemoController,
 };
 
 /*
@@ -59,6 +60,12 @@ Route::middleware(['web'])->prefix('auth')->group(function () {
 
 // Public Settings Route
 Route::get('settings/public', [AdminController::class, 'publicSettings']);
+
+// Demo Routes (PUBLIC, read-only — powers the logged-out demo dashboard)
+Route::middleware('throttle:30,1')->prefix('demo')->group(function () {
+    Route::get('courses', [DemoController::class, 'courses']);
+    Route::get('exam-preps', [DemoController::class, 'examPreps']);
+});
 
 // Student Portal Maintenance Status (Public)
 Route::get('student-portal/maintenance-status', [AdminController::class, 'studentPortalMaintenanceStatus']);
