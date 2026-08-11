@@ -35,6 +35,7 @@
              </router-link>
           </template>
           <template v-else>
+            <router-link to="/demo" class="action-btn-login whitespace-nowrap">SEE DEMO</router-link>
             <router-link to="/login" class="action-btn-login whitespace-nowrap">LOGIN</router-link>
             <router-link to="/register" class="action-btn-signup whitespace-nowrap">SIGN UP</router-link>
           </template>
@@ -98,6 +99,9 @@
                </router-link>
                <router-link to="/login" class="w-full py-2 text-center text-gray-500 font-bold text-sm uppercase tracking-widest hover:text-[#0055A4] transition block">
                  LOGIN
+               </router-link>
+               <router-link to="/demo" class="w-full py-2 text-center text-gray-500 font-bold text-sm uppercase tracking-widest hover:text-[#0055A4] transition block">
+                 See Demo
                </router-link>
             </template>
           </div>
