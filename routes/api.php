@@ -430,7 +430,8 @@ Route::prefix('payment')->group(function () {
 Route::get('courses/{id}', [CourseController::class, 'show']);
 
 // Frontend error reporter (browsers POST JS errors here so we can read them on the server)
-Route::post('client-error-log', [ClientErrorLogController::class, 'store']);
+Route::post('client-error-log', [ClientErrorLogController::class, 'store'])
+    ->middleware('throttle:60,1');
 
 // Public Exam Prep Routes (no authentication required for viewing)
 Route::get('exam-preps/{id}', [AdminExamPrepController::class, 'show']);
