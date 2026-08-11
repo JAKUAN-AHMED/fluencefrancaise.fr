@@ -277,6 +277,25 @@ const routes = [
       }
     ]
   },
+  {
+    path: '/demo',
+    name: 'DemoLayout',
+    component: () => import('../layouts/DemoLayout.vue'),
+    redirect: '/demo/courses',
+    meta: { requiresAuth: false },
+    children: [
+      {
+        path: 'courses',
+        name: 'DemoCourses',
+        component: () => import('../pages/demo/Courses.vue')
+      },
+      {
+        path: 'exam-prep',
+        name: 'DemoExamPrep',
+        component: () => import('../pages/demo/ExamPrep.vue')
+      }
+    ]
+  },
   // Public Page Route (catch-all for custom pages)
   {
     path: '/:slug',
@@ -339,6 +358,13 @@ router.beforeEach(async (to, from, next) => {
   // If authenticated user visits landing, redirect to dashboard
   if (to.path === '/' && auth.isAuthenticated && auth.user) {
     // Redirect based on user type
+    if (auth.user.user_type === 'admin' || auth.user.user_type === 'super_admin') return next('/admin/dashboard/')
+    if (auth.user.user_type === 'tutor') return next('/tutor/dashboard/')
+    return next('/student/dashboard/')
+  }
+
+  // Signed-in users get the real portal, not the demo.
+  if (to.path.startsWith('/demo') && auth.isAuthenticated && auth.user) {
     if (auth.user.user_type === 'admin' || auth.user.user_type === 'super_admin') return next('/admin/dashboard/')
     if (auth.user.user_type === 'tutor') return next('/tutor/dashboard/')
     return next('/student/dashboard/')
