@@ -37,6 +37,26 @@ class DemoController extends Controller
         ]);
     }
 
+    public function course(int $id): JsonResponse
+    {
+        $course = Course::where('id', $id)
+            ->where('course_is_active', true)
+            ->first();
+
+        if (! $course) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Course not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => DemoCatalogMapper::mapCourse($course),
+            'message' => 'Demo course',
+        ]);
+    }
+
     public function examPreps(): JsonResponse
     {
         $examPreps = ExamPrep::leftJoin('class_types', function ($join) {
@@ -54,6 +74,26 @@ class DemoController extends Controller
             'success' => true,
             'data' => $examPreps,
             'message' => 'Demo exam preps',
+        ]);
+    }
+
+    public function examPrep(int $id): JsonResponse
+    {
+        $examPrep = ExamPrep::where('id', $id)
+            ->where('exam_prep_is_active', true)
+            ->first();
+
+        if (! $examPrep) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Exam prep not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => DemoCatalogMapper::mapExamPrep($examPrep),
+            'message' => 'Demo exam prep',
         ]);
     }
 }

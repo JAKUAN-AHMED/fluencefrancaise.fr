@@ -64,7 +64,9 @@ Route::get('settings/public', [AdminController::class, 'publicSettings']);
 // Demo Routes (PUBLIC, read-only — powers the logged-out demo dashboard)
 Route::middleware('throttle:30,1')->prefix('demo')->group(function () {
     Route::get('courses', [DemoController::class, 'courses']);
+    Route::get('courses/{id}', [DemoController::class, 'course'])->whereNumber('id');
     Route::get('exam-preps', [DemoController::class, 'examPreps']);
+    Route::get('exam-preps/{id}', [DemoController::class, 'examPrep'])->whereNumber('id');
 });
 
 // Student Portal Maintenance Status (Public)
