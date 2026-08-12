@@ -26,7 +26,8 @@
         Create an account {{ reason }}
       </h3>
       <p class="text-gray-600 mb-6">
-        You're viewing a demo of the student portal. Sign up free to enrol and start learning.
+        You're viewing a demo of the student portal. Create your account, then choose a course plan
+        or subscription to become a student and unlock the full lessons, activities and quizzes.
       </p>
 
       <div class="space-y-3">

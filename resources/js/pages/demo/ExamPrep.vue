@@ -31,12 +31,13 @@
         v-for="examPrep in examPreps"
         :key="examPrep.id"
         class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden cursor-pointer"
-        @click="gate.open('to view this exam prep')"
+        @click="router.push(`/demo/exam-prep/${examPrep.id}`)"
       >
         <img
-          :src="examPrep.image_url || 'https://via.placeholder.com/400x200?text=Exam+Prep'"
+          :src="examPrep.image_url || EXAM_PREP_PLACEHOLDER"
           :alt="examPrep.title"
-          class="w-full h-48 object-cover"
+          class="w-full h-48 object-cover bg-gray-100"
+          @error="onImageError"
         />
         <div class="p-6">
           <div class="flex justify-between items-start mb-2">
@@ -58,12 +59,13 @@
             </span>
           </div>
           <div class="flex gap-2">
-            <button
-              class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors"
-              @click.stop="gate.open('to view this exam prep')"
+            <router-link
+              :to="`/demo/exam-prep/${examPrep.id}`"
+              class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors text-center"
+              @click.stop
             >
               View Details
-            </button>
+            </router-link>
             <button
               class="flex-1 px-4 py-2 bg-[#0055A4] hover:bg-[#003d7a] text-white rounded-lg transition-colors"
               @click.stop="gate.open('to enrol')"
@@ -79,10 +81,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useDemoGate } from '../../composables/useDemoGate'
+import { EXAM_PREP_PLACEHOLDER, makeImageErrorHandler } from '../../utils/imagePlaceholder'
 
+const onImageError = makeImageErrorHandler(EXAM_PREP_PLACEHOLDER)
 const gate = useDemoGate()
+const router = useRouter()
 const examPreps = ref([])
 const loading = ref(false)
 const error = ref('')

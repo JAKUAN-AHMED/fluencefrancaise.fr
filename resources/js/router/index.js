@@ -290,9 +290,19 @@ const routes = [
         component: () => import('../pages/demo/Courses.vue')
       },
       {
+        path: 'courses/:id',
+        name: 'DemoCourseDetail',
+        component: () => import('../pages/demo/CourseDetail.vue')
+      },
+      {
         path: 'exam-prep',
         name: 'DemoExamPrep',
         component: () => import('../pages/demo/ExamPrep.vue')
+      },
+      {
+        path: 'exam-prep/:id',
+        name: 'DemoExamPrepDetail',
+        component: () => import('../pages/demo/ExamPrepDetail.vue')
       }
     ]
   },
