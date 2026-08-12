@@ -15,6 +15,7 @@ final class DemoCatalogMapper
 {
     public const COURSE_KEYS = [
         'id', 'title', 'subtitle', 'description', 'image_url', 'level', 'category', 'language',
+        'total_texts',
     ];
 
     public const EXAM_PREP_KEYS = self::COURSE_KEYS;
@@ -30,6 +31,7 @@ final class DemoCatalogMapper
             'level' => $course->course_level,
             'category' => $course->course_category,
             'language' => $course->course_language,
+            'total_texts' => self::count($course->course_total_texts),
         ];
     }
 
@@ -44,7 +46,17 @@ final class DemoCatalogMapper
             'level' => $examPrep->exam_prep_level,
             'category' => $examPrep->exam_prep_category,
             'language' => $examPrep->exam_prep_language,
+            'total_texts' => self::count($examPrep->exam_prep_total_texts),
         ];
+    }
+
+    /**
+     * A published count is only worth showing when it is a real positive number.
+     * Null keeps the page from claiming a size the record does not actually state.
+     */
+    private static function count($value): ?int
+    {
+        return is_numeric($value) && (int) $value > 0 ? (int) $value : null;
     }
 
     /**

@@ -45,47 +45,30 @@
           <h1 class="text-4xl font-bold text-gray-800 mb-2">{{ examPrep.title }}</h1>
           <p v-if="examPrep.subtitle" class="text-gray-600 text-lg mb-4">{{ examPrep.subtitle }}</p>
 
-          <div class="grid grid-cols-3 gap-4 mb-8 p-4 bg-gray-50 rounded-lg">
-            <div>
-              <p class="text-gray-600 text-sm">Level</p>
-              <p class="text-lg font-bold text-[#0055A4]">{{ examPrep.level || 'Beginner' }}</p>
-            </div>
-            <div>
-              <p class="text-gray-600 text-sm">Language</p>
-              <p class="text-lg font-bold text-[#0055A4]">{{ examPrep.language || 'French' }}</p>
-            </div>
-            <div>
-              <p class="text-gray-600 text-sm">Exam</p>
-              <p class="text-lg font-bold text-[#0055A4]">{{ examPrep.category || 'General' }}</p>
+          <!-- Each cell renders only if the record actually carries that value. -->
+          <div v-if="facts.length" class="grid gap-4 mb-8 p-4 bg-gray-50 rounded-lg"
+               :class="facts.length === 1 ? 'grid-cols-1' : facts.length === 2 ? 'grid-cols-2' : 'grid-cols-3'">
+            <div v-for="fact in facts" :key="fact.label">
+              <p class="text-gray-600 text-sm">{{ fact.label }}</p>
+              <p class="text-lg font-bold text-[#0055A4]">{{ fact.value }}</p>
             </div>
           </div>
 
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">About This Exam Prep</h2>
-          <p class="text-gray-700 mb-6">{{ examPrep.description }}</p>
+          <template v-if="examPrep.description">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">About This Exam Prep</h2>
+            <p class="text-gray-700 mb-6 whitespace-pre-line">{{ examPrep.description }}</p>
+          </template>
 
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">What You'll Practise</h2>
-          <ul class="space-y-3 mb-8">
-            <li v-for="outcome in outcomes" :key="outcome" class="flex items-center text-gray-700">
-              <span class="text-green-600 font-bold mr-3">✓</span>
-              {{ outcome }}
-            </li>
-          </ul>
-
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">What's Included</h2>
-          <div class="space-y-4">
+          <!-- Only the record's own published count — no invented section list. -->
+          <template v-if="examPrep.total_texts">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">What's Included</h2>
             <div class="border border-gray-200 rounded-lg p-4">
-              <h3 class="font-bold text-gray-800 mb-2">Full Mock Exams</h3>
-              <p class="text-gray-600">Timed practice papers that mirror the real exam format</p>
+              <h3 class="font-bold text-gray-800 mb-1">
+                {{ examPrep.total_texts }} {{ examPrep.total_texts === 1 ? 'practice text' : 'practice texts' }}
+              </h3>
+              <p class="text-gray-600">Available to enrolled students.</p>
             </div>
-            <div class="border border-gray-200 rounded-lg p-4">
-              <h3 class="font-bold text-gray-800 mb-2">Section Drills</h3>
-              <p class="text-gray-600">Targeted listening, reading, writing and speaking exercises</p>
-            </div>
-            <div class="border border-gray-200 rounded-lg p-4">
-              <h3 class="font-bold text-gray-800 mb-2">Scoring &amp; Feedback</h3>
-              <p class="text-gray-600">Track your band level and see where to focus next</p>
-            </div>
-          </div>
+          </template>
 
           <!-- Locked material: the demo shows structure, never the material itself. -->
           <div class="mt-8 border border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
@@ -109,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { Lock } from 'lucide-vue-next'
 import axios from 'axios'
@@ -123,13 +106,11 @@ const examPrep = ref({})
 const loading = ref(false)
 const error = ref('')
 
-const outcomes = [
-  'Work through full timed mock exams',
-  'Sharpen listening and reading comprehension',
-  'Structure strong written responses',
-  'Build confidence for the speaking section',
-  'Learn the marking criteria examiners use',
-]
+const facts = computed(() => [
+  { label: 'Level', value: examPrep.value.level },
+  { label: 'Language', value: examPrep.value.language },
+  { label: 'Exam', value: examPrep.value.category },
+].filter(fact => fact.value))
 
 const loadExamPrep = async () => {
   loading.value = true

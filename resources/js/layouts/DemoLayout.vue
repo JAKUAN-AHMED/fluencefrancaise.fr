@@ -12,10 +12,13 @@
       :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
       style="background-color: #0055A4;"
     >
-      <div class="p-6 border-b" style="border-color: #003d7a;">
+      <!-- The site name doubles as the way out of the demo, back to the public site.
+           A plain anchor, not router-link: the homepage is a Blade view (web.php:91),
+           not an SPA route, so it needs a real page load. -->
+      <a href="/" class="block p-6 border-b hover:bg-white/5 transition-colors" style="border-color: #003d7a;">
         <h2 class="text-2xl font-bold">{{ settingsStore.siteName }}</h2>
         <p class="text-white/80 text-sm">Student Portal — Demo</p>
-      </div>
+      </a>
 
       <nav class="mt-6 flex-1 space-y-1 px-2 overflow-y-auto">
         <template v-for="item in demoMenu" :key="item.name">
@@ -44,6 +47,15 @@
             <Lock class="w-4 h-4" />
           </button>
         </template>
+
+        <a
+          href="/"
+          class="flex items-center px-4 py-3 mt-4 rounded-lg text-white/90 hover:opacity-80 border-t transition-colors"
+          style="border-color: #003d7a;"
+        >
+          <ArrowLeft class="w-5 h-5 mr-3" />
+          <span class="font-medium">Back to website</span>
+        </a>
       </nav>
     </div>
 
@@ -95,7 +107,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { BarChart3, BookOpen, User, FileText, Menu, Lock, GraduationCap } from 'lucide-vue-next'
+import { BarChart3, BookOpen, User, FileText, Menu, Lock, GraduationCap, ArrowLeft } from 'lucide-vue-next'
 import { useSettingsStore } from '../stores/settings'
 import { useDemoGate } from '../composables/useDemoGate'
 import DemoGateModal from '../components/DemoGateModal.vue'

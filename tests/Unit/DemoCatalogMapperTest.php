@@ -19,6 +19,7 @@ class DemoCatalogMapperTest extends TestCase
             'course_language' => 'French',
             'course_level' => 'Beginner',
             'course_json_content' => '{"secret":"TOP_SECRET_LESSON_BODY"}',
+            'course_total_texts' => 12,
             'course_image' => 'courses/a1.png',
             'course_is_active' => true,
             'custom_url' => 'https://internal.example.com/private',
@@ -48,6 +49,19 @@ class DemoCatalogMapperTest extends TestCase
         $this->assertSame('Beginner', $mapped['level']);
         $this->assertSame('grammar', $mapped['category']);
         $this->assertSame('French', $mapped['language']);
+        $this->assertSame(12, $mapped['total_texts']);
+    }
+
+    public function test_map_course_nulls_a_missing_or_zero_text_count(): void
+    {
+        // The detail page hides the structure block on null, rather than claiming a size
+        // the record never stated.
+        $course = $this->makeCourse();
+        $course->course_total_texts = 0;
+        $this->assertNull(DemoCatalogMapper::mapCourse($course)['total_texts']);
+
+        $course->course_total_texts = null;
+        $this->assertNull(DemoCatalogMapper::mapCourse($course)['total_texts']);
     }
 
     public function test_map_course_never_leaks_private_fields(): void
