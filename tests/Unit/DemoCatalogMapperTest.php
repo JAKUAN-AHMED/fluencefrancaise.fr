@@ -81,6 +81,79 @@ class DemoCatalogMapperTest extends TestCase
         $this->assertSame('/storage/courses/a1.png', DemoCatalogMapper::mapCourse($course)['image_url']);
     }
 
+    public function test_map_course_passes_an_absolute_image_url_through_unchanged(): void
+    {
+        // admin/Courses.vue:607 branches on startsWith('http'), so records can hold a full URL.
+        $course = $this->makeCourse();
+        $course->course_image = 'https://cdn.example.com/course-art/a1.png';
+
+        $this->assertSame(
+            'https://cdn.example.com/course-art/a1.png',
+            DemoCatalogMapper::mapCourse($course)['image_url']
+        );
+    }
+
+    public function test_map_course_does_not_double_prefix_an_already_rooted_storage_path(): void
+    {
+        $course = $this->makeCourse();
+        $course->course_image = '/storage/courses/a1.png';
+
+        $this->assertSame('/storage/courses/a1.png', DemoCatalogMapper::mapCourse($course)['image_url']);
+    }
+
+    public function test_map_course_roots_a_bare_storage_prefixed_path(): void
+    {
+        $course = $this->makeCourse();
+        $course->course_image = 'storage/courses/a1.png';
+
+        $this->assertSame('/storage/courses/a1.png', DemoCatalogMapper::mapCourse($course)['image_url']);
+    }
+
+    public function test_map_course_falls_back_to_the_banner_when_no_image_is_set(): void
+    {
+        // tutor/Courses.vue:42 renders course_banner || course_image, so a course may
+        // carry only a banner. The demo should show that rather than a grey placeholder.
+        $course = $this->makeCourse();
+        $course->course_image = null;
+        $course->course_banner = 'courses/banners/a1-wide.jpg';
+
+        $this->assertSame(
+            '/storage/courses/banners/a1-wide.jpg',
+            DemoCatalogMapper::mapCourse($course)['image_url']
+        );
+    }
+
+    public function test_map_course_prefers_the_image_over_the_banner(): void
+    {
+        $course = $this->makeCourse();
+        $course->course_banner = 'courses/banners/a1-wide.jpg';
+
+        $this->assertSame('/storage/courses/a1.png', DemoCatalogMapper::mapCourse($course)['image_url']);
+    }
+
+    public function test_map_course_ignores_a_whitespace_only_image(): void
+    {
+        $course = $this->makeCourse();
+        $course->course_image = '   ';
+        $course->course_banner = null;
+
+        $this->assertNull(DemoCatalogMapper::mapCourse($course)['image_url']);
+    }
+
+    public function test_map_exam_prep_falls_back_to_the_banner_when_no_image_is_set(): void
+    {
+        $examPrep = new ExamPrep([
+            'exam_prep_title' => 'TCF Oral',
+            'exam_prep_image' => null,
+            'exam_prep_banner' => 'exam-preps/banners/tcf-wide.jpg',
+        ]);
+
+        $this->assertSame(
+            '/storage/exam-preps/banners/tcf-wide.jpg',
+            DemoCatalogMapper::mapExamPrep($examPrep)['image_url']
+        );
+    }
+
     public function test_map_exam_prep_returns_exactly_the_whitelisted_keys(): void
     {
         $examPrep = new ExamPrep([
