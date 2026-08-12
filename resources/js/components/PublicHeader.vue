@@ -35,8 +35,9 @@
              </router-link>
           </template>
           <template v-else>
+            <!-- One CTA only: the navbar serves new visitors. Returning users reach
+                 login from the sign-up page ("Already have an account?") or /login. -->
             <router-link to="/demo" class="action-btn-login whitespace-nowrap">SEE DEMO</router-link>
-            <router-link to="/login" class="action-btn-login whitespace-nowrap">LOGIN</router-link>
             <router-link to="/register" class="action-btn-signup whitespace-nowrap">SIGN UP</router-link>
           </template>
         </div>

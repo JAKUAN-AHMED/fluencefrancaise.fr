@@ -109,21 +109,18 @@ class DemoCatalogMapperTest extends TestCase
         $this->assertSame('/storage/courses/a1.png', DemoCatalogMapper::mapCourse($course)['image_url']);
     }
 
-    public function test_map_course_falls_back_to_the_banner_when_no_image_is_set(): void
+    public function test_map_course_does_not_substitute_the_banner_for_a_missing_image(): void
     {
-        // tutor/Courses.vue:42 renders course_banner || course_image, so a course may
-        // carry only a banner. The demo should show that rather than a grey placeholder.
+        // A course with no image of its own stays imageless, so the demo page renders
+        // its placeholder. The banner is wide header art, not card art.
         $course = $this->makeCourse();
         $course->course_image = null;
         $course->course_banner = 'courses/banners/a1-wide.jpg';
 
-        $this->assertSame(
-            '/storage/courses/banners/a1-wide.jpg',
-            DemoCatalogMapper::mapCourse($course)['image_url']
-        );
+        $this->assertNull(DemoCatalogMapper::mapCourse($course)['image_url']);
     }
 
-    public function test_map_course_prefers_the_image_over_the_banner(): void
+    public function test_map_course_ignores_the_banner_when_an_image_is_set(): void
     {
         $course = $this->makeCourse();
         $course->course_banner = 'courses/banners/a1-wide.jpg';
@@ -140,7 +137,7 @@ class DemoCatalogMapperTest extends TestCase
         $this->assertNull(DemoCatalogMapper::mapCourse($course)['image_url']);
     }
 
-    public function test_map_exam_prep_falls_back_to_the_banner_when_no_image_is_set(): void
+    public function test_map_exam_prep_does_not_substitute_the_banner_for_a_missing_image(): void
     {
         $examPrep = new ExamPrep([
             'exam_prep_title' => 'TCF Oral',
@@ -148,10 +145,7 @@ class DemoCatalogMapperTest extends TestCase
             'exam_prep_banner' => 'exam-preps/banners/tcf-wide.jpg',
         ]);
 
-        $this->assertSame(
-            '/storage/exam-preps/banners/tcf-wide.jpg',
-            DemoCatalogMapper::mapExamPrep($examPrep)['image_url']
-        );
+        $this->assertNull(DemoCatalogMapper::mapExamPrep($examPrep)['image_url']);
     }
 
     public function test_map_exam_prep_returns_exactly_the_whitelisted_keys(): void

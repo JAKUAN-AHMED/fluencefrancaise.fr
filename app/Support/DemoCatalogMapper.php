@@ -26,7 +26,7 @@ final class DemoCatalogMapper
             'title' => $course->course_title,
             'subtitle' => $course->course_subtitle,
             'description' => $course->course_description,
-            'image_url' => self::storageUrl($course->course_image, $course->course_banner),
+            'image_url' => self::storageUrl($course->course_image),
             'level' => $course->course_level,
             'category' => $course->course_category,
             'language' => $course->course_language,
@@ -40,7 +40,7 @@ final class DemoCatalogMapper
             'title' => $examPrep->exam_prep_title,
             'subtitle' => $examPrep->exam_prep_subtitle,
             'description' => $examPrep->exam_prep_description,
-            'image_url' => self::storageUrl($examPrep->exam_prep_image, $examPrep->exam_prep_banner),
+            'image_url' => self::storageUrl($examPrep->exam_prep_image),
             'level' => $examPrep->exam_prep_level,
             'category' => $examPrep->exam_prep_category,
             'language' => $examPrep->exam_prep_language,
@@ -55,32 +55,27 @@ final class DemoCatalogMapper
      * or an already-rooted `/storage/` path — both cases the admin and exam prep screens
      * already branch on. Prefixing blindly turns those into `/storage/https://…`.
      *
-     * Falls back to the banner so a course carrying only banner art still shows a real
-     * picture instead of the placeholder.
+     * A record with no image of its own returns null; the demo pages then render their
+     * own placeholder. The banner is deliberately not substituted — it is wide header
+     * art, not card art.
      */
-    private static function storageUrl(?string $path, ?string $fallback = null): ?string
+    private static function storageUrl(?string $path): ?string
     {
-        foreach ([$path, $fallback] as $candidate) {
-            $candidate = is_string($candidate) ? rtrim(trim($candidate), '/') : '';
+        $path = is_string($path) ? rtrim(trim($path), '/') : '';
 
-            if ($candidate === '') {
-                continue;
-            }
-
-            // Absolute URL or protocol-relative: already addressable, leave it alone.
-            if (preg_match('#^(https?:)?//#i', $candidate) === 1) {
-                return $candidate;
-            }
-
-            $candidate = ltrim($candidate, '/');
-
-            if (str_starts_with(strtolower($candidate), 'storage/')) {
-                return '/' . $candidate;
-            }
-
-            return '/storage/' . $candidate;
+        if ($path === '') {
+            return null;
         }
 
-        return null;
+        // Absolute URL or protocol-relative: already addressable, leave it alone.
+        if (preg_match('#^(https?:)?//#i', $path) === 1) {
+            return $path;
+        }
+
+        $path = ltrim($path, '/');
+
+        return str_starts_with(strtolower($path), 'storage/')
+            ? '/' . $path
+            : '/storage/' . $path;
     }
 }

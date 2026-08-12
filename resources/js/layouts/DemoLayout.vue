@@ -74,25 +74,13 @@
         </div>
       </div>
 
-      <!-- Demo banner -->
-      <div class="bg-amber-50 border-b border-amber-200 px-4 sm:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- Demo banner. Explanatory only — the topbar carries the single call to action,
+           so the shell does not compete with itself for the same click. -->
+      <div class="bg-amber-50 border-b border-amber-200 px-4 sm:px-8 py-3">
         <p class="text-sm text-amber-900">
-          You're viewing a demo of the student portal. Create an account to enrol and track progress.
+          You're viewing a demo of the student portal. Create an account and choose a plan to enrol
+          and track your progress.
         </p>
-        <div class="flex gap-2 shrink-0">
-          <router-link
-            to="/login"
-            class="px-3 py-1.5 text-sm font-medium text-[#0055A4] hover:text-[#003d7a] transition-colors"
-          >
-            Log in
-          </router-link>
-          <router-link
-            to="/register"
-            class="px-3 py-1.5 text-sm font-medium bg-[#0055A4] hover:bg-[#003d7a] text-white rounded-lg transition-colors"
-          >
-            Sign up
-          </router-link>
-        </div>
       </div>
 
       <div class="flex-1 overflow-auto bg-gray-100">
