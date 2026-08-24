@@ -31,13 +31,9 @@
           />
           <button
             class="block w-full px-6 py-3 bg-[#0055A4] hover:bg-[#003d7a] text-white rounded-lg font-bold text-center transition-colors"
-            @click="gate.open('to enrol')"
           >
-            Enroll Now
+            Continue Learning
           </button>
-          <p class="text-xs text-gray-500 text-center mt-3">
-            Create an account, then pick a plan or subscription to enrol.
-          </p>
         </div>
 
         <!-- Course Details -->
@@ -59,11 +55,34 @@
             <p class="text-gray-700 mb-6 whitespace-pre-line">{{ course.description }}</p>
           </template>
 
-          <!-- Only the course's own published count. Nothing on this page describes
-               content the record does not actually state. -->
-          <template v-if="course.total_texts">
+          <!-- Syllabus: the real lesson titles. Names are visible so a visitor can judge
+               the course; the lessons themselves stay locked. -->
+          <template v-if="course.outline?.length">
+            <div class="flex items-baseline justify-between mb-4">
+              <h2 class="text-2xl font-bold text-gray-800">Course Outline</h2>
+              <span class="text-sm text-gray-500">
+                {{ course.outline.length }} {{ course.outline.length === 1 ? 'lesson' : 'lessons' }}
+              </span>
+            </div>
+            <ol class="border border-gray-200 rounded-lg divide-y divide-gray-200 mb-2">
+              <li
+                v-for="(lesson, index) in course.outline"
+                :key="index"
+                class="flex items-center gap-4 px-4 py-3"
+              >
+                <span class="w-7 h-7 shrink-0 rounded-full bg-[#0055A4]/10 text-[#0055A4] text-xs font-bold flex items-center justify-center">
+                  {{ index + 1 }}
+                </span>
+                <span class="text-gray-800 flex-1">{{ lesson }}</span>
+                <Lock class="w-4 h-4 text-gray-300 shrink-0" />
+              </li>
+            </ol>
+          </template>
+
+          <!-- No syllabus stored: fall back to the course's own published count. -->
+          <template v-else-if="course.total_texts">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Course Structure</h2>
-            <div class="border border-gray-200 rounded-lg p-4">
+            <div class="border border-gray-200 rounded-lg p-4 mb-8">
               <h3 class="font-bold text-gray-800 mb-1">
                 {{ course.total_texts }} {{ course.total_texts === 1 ? 'lesson' : 'lessons' }}
               </h3>
@@ -71,21 +90,6 @@
             </div>
           </template>
 
-          <!-- Locked lesson content: the demo shows structure, never the material itself. -->
-          <div class="mt-8 border border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
-            <Lock class="w-8 h-8 text-gray-400 mx-auto mb-3" />
-            <h3 class="font-bold text-gray-800 mb-1">Lesson content is locked in the demo</h3>
-            <p class="text-gray-600 text-sm mb-4">
-              Become a student — create an account and choose a course plan or subscription — to open
-              the lessons, activities and quizzes for this course.
-            </p>
-            <button
-              class="inline-block px-5 py-2.5 bg-[#0055A4] hover:bg-[#003d7a] text-white rounded-lg font-medium transition-colors"
-              @click="gate.open('to unlock this course')"
-            >
-              Unlock this course
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -97,11 +101,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { Lock } from 'lucide-vue-next'
 import axios from 'axios'
-import { useDemoGate } from '../../composables/useDemoGate'
 import { COURSE_PLACEHOLDER, makeImageErrorHandler } from '../../utils/imagePlaceholder'
 
 const onImageError = makeImageErrorHandler(COURSE_PLACEHOLDER)
-const gate = useDemoGate()
 const route = useRoute()
 const course = ref({})
 const loading = ref(false)
@@ -120,8 +122,8 @@ const loadCourse = async () => {
     const response = await axios.get(`/api/demo/courses/${route.params.id}`)
     course.value = response.data?.data ?? {}
   } catch (err) {
-    console.error('Failed to load demo course:', err)
-    error.value = 'This course is not available in the demo.'
+    console.error('Failed to load course:', err)
+    error.value = 'This course is not available.'
     course.value = {}
   } finally {
     loading.value = false

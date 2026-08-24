@@ -25,6 +25,9 @@
           <a href="/tef-tcf" class="nav-link">TEF/TCF</a>
           <a href="/contact-us" class="nav-link">CONTACT US</a>
           <a href="/about-us" class="nav-link">ABOUT US</a>
+          <!-- Guests land in the demo portal; signed-in users are redirected to their own
+               dashboard by the router guard, so one link serves both. -->
+          <router-link to="/demo" class="nav-link">STUDENT PORTAL</router-link>
         </nav>
 
         <!-- Header Actions -->
@@ -36,8 +39,8 @@
           </template>
           <template v-else>
             <!-- One CTA only: the navbar serves new visitors. Returning users reach
-                 login from the sign-up page ("Already have an account?") or /login. -->
-            <router-link to="/demo" class="action-btn-login whitespace-nowrap">SEE DEMO</router-link>
+                 login from the sign-up page ("Already have an account?") or /login.
+                 The demo is reached from the STUDENT PORTAL nav link, not a button. -->
             <router-link to="/register" class="action-btn-signup whitespace-nowrap">SIGN UP</router-link>
           </template>
         </div>
@@ -86,6 +89,7 @@
             <a href="/tef-tcf" class="text-xl font-semibold tracking-tight text-gray-900 hover:text-[#0055A4] transition">TEF/TCF</a>
             <a href="/contact-us" class="text-xl font-semibold tracking-tight text-gray-900 hover:text-[#0055A4] transition">Contact Us</a>
             <a href="/about-us" class="text-xl font-semibold tracking-tight text-gray-900 hover:text-[#0055A4] transition">About Us</a>
+            <router-link to="/demo" class="text-xl font-semibold tracking-tight text-gray-900 hover:text-[#0055A4] transition">Student Portal</router-link>
           </div>
 
           <div class="mt-8 flex flex-col gap-6">

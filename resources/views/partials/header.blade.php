@@ -120,6 +120,9 @@
                 <a href="/tef-tcf" class="nav-link {{ Request::is('tef-tcf') ? 'active-link' : '' }}">TEF/TCF</a>
                 <a href="/about-us" class="nav-link {{ Request::is('about-us') ? 'active-link' : '' }}">ABOUT</a>
                 <a href="/contact-us" class="nav-link {{ Request::is('contact-us') ? 'active-link' : '' }}">CONTACT</a>
+                {{-- Guests land in the demo portal; signed-in users are redirected to their own
+                     dashboard by the router guard, so one link serves both. --}}
+                <a href="/demo" class="nav-link {{ Request::is('demo*') ? 'active-link' : '' }}">STUDENT PORTAL</a>
             </nav>
 
             <!-- Header Actions (Secure: Server-side auth check) -->
@@ -175,6 +178,7 @@
                 <a href="/tef-tcf" class="text-xl font-semibold tracking-tight text-[#16213E] hover:text-[#0055A4] transition">TEF/TCF</a>
                 <a href="/about-us" class="text-xl font-semibold tracking-tight text-[#16213E] hover:text-[#0055A4] transition">About Us</a>
                 <a href="/contact-us" class="text-xl font-semibold tracking-tight text-[#16213E] hover:text-[#0055A4] transition">Contact Us</a>
+                <a href="/demo" class="text-xl font-semibold tracking-tight {{ Request::is('demo*') ? 'text-[#0055A4]' : 'text-[#16213E] hover:text-[#0055A4]' }} transition">Student Portal</a>
             </div>
 
             <div class="mt-8 flex flex-col gap-6">

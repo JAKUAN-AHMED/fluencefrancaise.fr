@@ -31,13 +31,9 @@
           />
           <button
             class="block w-full px-6 py-3 bg-[#0055A4] hover:bg-[#003d7a] text-white rounded-lg font-bold text-center transition-colors"
-            @click="gate.open('to enrol')"
           >
-            Enroll Now
+            Continue Learning
           </button>
-          <p class="text-xs text-gray-500 text-center mt-3">
-            Create an account, then pick a plan or subscription to enrol.
-          </p>
         </div>
 
         <!-- Exam Prep Details -->
@@ -59,10 +55,33 @@
             <p class="text-gray-700 mb-6 whitespace-pre-line">{{ examPrep.description }}</p>
           </template>
 
-          <!-- Only the record's own published count — no invented section list. -->
-          <template v-if="examPrep.total_texts">
+          <!-- Syllabus: the real section titles, with the material itself still locked. -->
+          <template v-if="examPrep.outline?.length">
+            <div class="flex items-baseline justify-between mb-4">
+              <h2 class="text-2xl font-bold text-gray-800">What's Included</h2>
+              <span class="text-sm text-gray-500">
+                {{ examPrep.outline.length }} {{ examPrep.outline.length === 1 ? 'section' : 'sections' }}
+              </span>
+            </div>
+            <ol class="border border-gray-200 rounded-lg divide-y divide-gray-200 mb-2">
+              <li
+                v-for="(section, index) in examPrep.outline"
+                :key="index"
+                class="flex items-center gap-4 px-4 py-3"
+              >
+                <span class="w-7 h-7 shrink-0 rounded-full bg-[#0055A4]/10 text-[#0055A4] text-xs font-bold flex items-center justify-center">
+                  {{ index + 1 }}
+                </span>
+                <span class="text-gray-800 flex-1">{{ section }}</span>
+                <Lock class="w-4 h-4 text-gray-300 shrink-0" />
+              </li>
+            </ol>
+          </template>
+
+          <!-- No syllabus stored: fall back to the record's own published count. -->
+          <template v-else-if="examPrep.total_texts">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">What's Included</h2>
-            <div class="border border-gray-200 rounded-lg p-4">
+            <div class="border border-gray-200 rounded-lg p-4 mb-8">
               <h3 class="font-bold text-gray-800 mb-1">
                 {{ examPrep.total_texts }} {{ examPrep.total_texts === 1 ? 'practice text' : 'practice texts' }}
               </h3>
@@ -70,21 +89,6 @@
             </div>
           </template>
 
-          <!-- Locked material: the demo shows structure, never the material itself. -->
-          <div class="mt-8 border border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
-            <Lock class="w-8 h-8 text-gray-400 mx-auto mb-3" />
-            <h3 class="font-bold text-gray-800 mb-1">Practice material is locked in the demo</h3>
-            <p class="text-gray-600 text-sm mb-4">
-              Become a student — create an account and choose a plan or subscription — to open the
-              mock exams, drills and scoring for this exam prep.
-            </p>
-            <button
-              class="inline-block px-5 py-2.5 bg-[#0055A4] hover:bg-[#003d7a] text-white rounded-lg font-medium transition-colors"
-              @click="gate.open('to unlock this exam prep')"
-            >
-              Unlock this exam prep
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -96,11 +100,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { Lock } from 'lucide-vue-next'
 import axios from 'axios'
-import { useDemoGate } from '../../composables/useDemoGate'
 import { EXAM_PREP_PLACEHOLDER, makeImageErrorHandler } from '../../utils/imagePlaceholder'
 
 const onImageError = makeImageErrorHandler(EXAM_PREP_PLACEHOLDER)
-const gate = useDemoGate()
 const route = useRoute()
 const examPrep = ref({})
 const loading = ref(false)
@@ -119,8 +121,8 @@ const loadExamPrep = async () => {
     const response = await axios.get(`/api/demo/exam-preps/${route.params.id}`)
     examPrep.value = response.data?.data ?? {}
   } catch (err) {
-    console.error('Failed to load demo exam prep:', err)
-    error.value = 'This exam prep is not available in the demo.'
+    console.error('Failed to load exam prep:', err)
+    error.value = 'This exam prep is not available.'
     examPrep.value = {}
   } finally {
     loading.value = false

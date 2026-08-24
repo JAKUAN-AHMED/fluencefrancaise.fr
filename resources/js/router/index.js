@@ -281,9 +281,14 @@ const routes = [
     path: '/demo',
     name: 'DemoLayout',
     component: () => import('../layouts/DemoLayout.vue'),
-    redirect: '/demo/courses',
+    redirect: '/demo/dashboard',
     meta: { requiresAuth: false },
     children: [
+      {
+        path: 'dashboard',
+        name: 'DemoDashboard',
+        component: () => import('../pages/demo/Dashboard.vue')
+      },
       {
         path: 'courses',
         name: 'DemoCourses',
@@ -303,6 +308,16 @@ const routes = [
         path: 'exam-prep/:id',
         name: 'DemoExamPrepDetail',
         component: () => import('../pages/demo/ExamPrepDetail.vue')
+      },
+      {
+        path: 'homework',
+        name: 'DemoHomework',
+        component: () => import('../pages/demo/Homework.vue')
+      },
+      {
+        path: 'account',
+        name: 'DemoAccount',
+        component: () => import('../pages/demo/Account.vue')
       }
     ]
   },

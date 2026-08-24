@@ -162,6 +162,107 @@ class DemoCatalogMapperTest extends TestCase
         $this->assertNull(DemoCatalogMapper::mapExamPrep($examPrep)['image_url']);
     }
 
+    /**
+     * Mirrors the real shape parsed by CourseView.vue:820 — an array of sections, some
+     * carrying an activities[] list, each activity holding questions and body text.
+     */
+    private function realisticContent(): string
+    {
+        return json_encode([
+            [
+                'category' => 'Reading',
+                'difficulty' => 'A1',
+                'activities' => [
+                    [
+                        'title' => 'Les salutations',
+                        'body' => 'SECRET_BODY_ONE',
+                        'questions' => [
+                            ['prompt' => 'SECRET_QUESTION_ONE', 'answer' => 'SECRET_ANSWER_ONE'],
+                        ],
+                    ],
+                    [
+                        'title' => 'Les nombres',
+                        'content' => 'SECRET_BODY_TWO',
+                        'questions' => [['prompt' => 'SECRET_QUESTION_TWO']],
+                    ],
+                ],
+            ],
+            [
+                'section' => 'Grammaire de base',
+                'text' => 'SECRET_BODY_THREE',
+                'questions' => [['prompt' => 'SECRET_QUESTION_THREE']],
+            ],
+        ]);
+    }
+
+    public function test_map_course_publishes_the_lesson_titles_as_an_outline(): void
+    {
+        $course = $this->makeCourse();
+        $course->course_json_content = $this->realisticContent();
+
+        $this->assertSame(
+            ['Les salutations', 'Les nombres', 'Grammaire de base'],
+            DemoCatalogMapper::mapCourse($course)['outline']
+        );
+    }
+
+    public function test_map_course_outline_leaks_no_lesson_body_or_questions(): void
+    {
+        $course = $this->makeCourse();
+        $course->course_json_content = $this->realisticContent();
+
+        $encoded = json_encode(DemoCatalogMapper::mapCourse($course));
+
+        foreach ([
+            'SECRET_BODY_ONE', 'SECRET_BODY_TWO', 'SECRET_BODY_THREE',
+            'SECRET_QUESTION_ONE', 'SECRET_QUESTION_TWO', 'SECRET_QUESTION_THREE',
+            'SECRET_ANSWER_ONE', 'questions', 'body', 'content',
+        ] as $forbidden) {
+            $this->assertStringNotContainsString($forbidden, $encoded);
+        }
+    }
+
+    public function test_map_course_outline_is_empty_for_unusable_content(): void
+    {
+        $course = $this->makeCourse();
+
+        foreach ([null, '', '   ', 'not json at all', '"a string"', '123'] as $value) {
+            $course->course_json_content = $value;
+            $this->assertSame([], DemoCatalogMapper::mapCourse($course)['outline']);
+        }
+    }
+
+    public function test_map_course_outline_skips_untitled_entries(): void
+    {
+        $course = $this->makeCourse();
+        $course->course_json_content = json_encode([
+            ['title' => 'Real lesson'],
+            ['body' => 'SECRET_BODY'],
+            ['title' => '   '],
+            ['title' => 'Another real lesson'],
+        ]);
+
+        $this->assertSame(
+            ['Real lesson', 'Another real lesson'],
+            DemoCatalogMapper::mapCourse($course)['outline']
+        );
+    }
+
+    public function test_map_exam_prep_publishes_its_own_outline(): void
+    {
+        $examPrep = new ExamPrep([
+            'exam_prep_title' => 'TEF Oral',
+            'exam_prep_json_content' => json_encode([
+                ['title' => 'Section A', 'body' => 'SECRET_EXAM_BODY'],
+            ]),
+        ]);
+
+        $mapped = DemoCatalogMapper::mapExamPrep($examPrep);
+
+        $this->assertSame(['Section A'], $mapped['outline']);
+        $this->assertStringNotContainsString('SECRET_EXAM_BODY', json_encode($mapped));
+    }
+
     public function test_map_exam_prep_returns_exactly_the_whitelisted_keys(): void
     {
         $examPrep = new ExamPrep([

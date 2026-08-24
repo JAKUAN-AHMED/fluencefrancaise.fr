@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\ExamPrep;
 use App\Support\DemoCatalogMapper;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * Public, read-only catalogue for the logged-out demo dashboard.
@@ -16,8 +17,24 @@ use Illuminate\Http\JsonResponse;
 class DemoController extends Controller
 {
     private const PER_PAGE = 10;
+    private const MAX_PER_PAGE = 100;
 
-    public function courses(): JsonResponse
+    /**
+     * Callers may ask for a bigger page so the demo can show the whole catalogue.
+     * Clamped so a crafted per_page cannot pull the entire table in one request.
+     */
+    private function perPage(Request $request): int
+    {
+        $perPage = (int) $request->query('per_page', self::PER_PAGE);
+
+        if ($perPage < 1) {
+            return self::PER_PAGE;
+        }
+
+        return min($perPage, self::MAX_PER_PAGE);
+    }
+
+    public function courses(Request $request): JsonResponse
     {
         $courses = Course::leftJoin('class_types', function ($join) {
                 $join->on('courses.course_category', '=', 'class_types.class_name')
@@ -27,7 +44,7 @@ class DemoController extends Controller
             ->where('courses.course_is_active', true)
             ->orderBy('class_types.display_order', 'asc')
             ->orderBy('courses.id', 'asc')
-            ->paginate(self::PER_PAGE)
+            ->paginate($this->perPage($request))
             ->through(fn (Course $course) => DemoCatalogMapper::mapCourse($course));
 
         return response()->json([
@@ -57,7 +74,7 @@ class DemoController extends Controller
         ]);
     }
 
-    public function examPreps(): JsonResponse
+    public function examPreps(Request $request): JsonResponse
     {
         $examPreps = ExamPrep::leftJoin('class_types', function ($join) {
                 $join->on('exam_preps.exam_prep_category', '=', 'class_types.class_name')
@@ -67,7 +84,7 @@ class DemoController extends Controller
             ->where('exam_preps.exam_prep_is_active', true)
             ->orderBy('class_types.display_order', 'asc')
             ->orderBy('exam_preps.id', 'asc')
-            ->paginate(self::PER_PAGE)
+            ->paginate($this->perPage($request))
             ->through(fn (ExamPrep $examPrep) => DemoCatalogMapper::mapExamPrep($examPrep));
 
         return response()->json([

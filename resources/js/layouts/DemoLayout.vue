@@ -12,50 +12,32 @@
       :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
       style="background-color: #0055A4;"
     >
-      <!-- The site name doubles as the way out of the demo, back to the public site.
-           A plain anchor, not router-link: the homepage is a Blade view (web.php:91),
+      <!-- Plain anchor, not router-link: the homepage is a Blade view (web.php:91),
            not an SPA route, so it needs a real page load. -->
       <a href="/" class="block p-6 border-b hover:bg-white/5 transition-colors" style="border-color: #003d7a;">
         <h2 class="text-2xl font-bold">{{ settingsStore.siteName }}</h2>
-        <p class="text-white/80 text-sm">Student Portal — Demo</p>
+        <p class="text-white/80 text-sm">Student Portal</p>
       </a>
 
       <nav class="mt-6 flex-1 space-y-1 px-2 overflow-y-auto">
-        <template v-for="item in demoMenu" :key="item.name">
-          <router-link
-            v-if="item.path"
-            :to="item.path"
-            class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200"
-            :class="isActive(item.path) ? 'text-white' : 'text-white/90 hover:opacity-80'"
-            :style="isActive(item.path) ? 'background-color: #003d7a;' : ''"
-            @click="isSidebarOpen = false"
-          >
+        <!-- Every page is browsable. The sidebar stays live so a visitor can move
+             around freely; it is the content that is read-only. -->
+        <router-link
+          v-for="item in demoMenu"
+          :key="item.name"
+          :to="item.path"
+          class="flex items-center justify-between px-4 py-3 rounded-lg transition-colors duration-200"
+          :class="isActive(item.path) ? 'text-white' : 'text-white/90 hover:opacity-80'"
+          :style="isActive(item.path) ? 'background-color: #003d7a;' : ''"
+          @click="isSidebarOpen = false"
+        >
+          <div class="flex items-center">
             <component :is="item.icon" class="w-5 h-5 mr-3" />
             <span class="font-medium">{{ item.name }}</span>
-          </router-link>
+          </div>
+          <Lock v-if="item.path === '/demo/account'" class="w-4 h-4 text-white/50" />
+        </router-link>
 
-          <button
-            v-else
-            type="button"
-            class="w-full flex items-center justify-between px-4 py-3 rounded-lg text-white/50 hover:text-white/70 transition-colors"
-            @click="gate.open('to unlock this page')"
-          >
-            <div class="flex items-center">
-              <component :is="item.icon" class="w-5 h-5 mr-3" />
-              <span class="font-medium">{{ item.name }}</span>
-            </div>
-            <Lock class="w-4 h-4" />
-          </button>
-        </template>
-
-        <a
-          href="/"
-          class="flex items-center px-4 py-3 mt-4 rounded-lg text-white/90 hover:opacity-80 border-t transition-colors"
-          style="border-color: #003d7a;"
-        >
-          <ArrowLeft class="w-5 h-5 mr-3" />
-          <span class="font-medium">Back to website</span>
-        </a>
       </nav>
     </div>
 
@@ -63,6 +45,15 @@
     <div class="flex-1 flex flex-col overflow-hidden min-w-0">
       <div class="bg-white shadow-sm border-b border-gray-200 h-16 flex items-center justify-between px-4 sm:px-8 z-30">
         <div class="flex items-center">
+          <!-- Back to the public site. Plain anchor, not router-link: the homepage is a
+               Blade view (web.php:91), not an SPA route, so it needs a real page load. -->
+          <a
+            href="/"
+            aria-label="Back to website"
+            class="mr-3 -ml-1 p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ArrowLeft class="w-5 h-5" />
+          </a>
           <button
             class="mr-4 text-gray-600 hover:text-gray-900 focus:outline-none md:hidden"
             @click="isSidebarOpen = !isSidebarOpen"
@@ -73,67 +64,135 @@
         </div>
 
         <div class="flex items-center space-x-2 sm:space-x-4">
-          <div class="hidden sm:block text-right">
-            <p class="text-sm font-medium text-gray-800">Guest</p>
-            <p class="text-xs text-gray-500">Demo preview</p>
-          </div>
+          <!-- The topbar carries a single action: log in. Registration is still reachable
+               from the login page and from the gate modal. -->
           <router-link
-            to="/register"
-            class="px-3 sm:px-4 py-2 bg-[#0055A4] hover:bg-[#003d7a] text-white rounded-lg text-sm font-medium transition-colors"
+            to="/login"
+            class="px-4 sm:px-6 py-2 bg-[#0055A4] hover:bg-[#003d7a] text-white rounded-lg text-sm font-medium transition-colors"
           >
-            Create free account
+            Login
           </router-link>
         </div>
       </div>
 
-      <!-- Demo banner. Explanatory only — the topbar carries the single call to action,
-           so the shell does not compete with itself for the same click. -->
-      <div class="bg-amber-50 border-b border-amber-200 px-4 sm:px-8 py-3">
-        <p class="text-sm text-amber-900">
-          You're viewing a demo of the student portal. Create an account and choose a plan to enrol
-          and track your progress.
-        </p>
-      </div>
+      <!-- Content area. The lock overlay is a sibling of the scroll container and is
+           positioned against this box, so it stays centred over the content while the
+           page scrolls underneath, and never covers the sidebar. -->
+      <div class="flex-1 relative overflow-hidden">
+        <div ref="scroller" class="absolute inset-0 overflow-auto bg-gray-100">
+          <!-- pointer-events-none kills every click inside the page, but wheel and
+               touch scrolling still reach this scroll container, so reading works.
+               Once the login prompt appears the page gets a light blur — enough to
+               signal "locked" while the content stays teasingly readable. -->
+          <div
+            class="pointer-events-none select-none transition-[filter] duration-500"
+            :class="isAccount ? 'blur-sm' : showLoginPrompt ? 'blur-[2px]' : ''"
+          >
+            <router-view />
+          </div>
+        </div>
 
-      <div class="flex-1 overflow-auto bg-gray-100">
-        <router-view />
+        <!-- Account is fully locked: blurred, no way in. Every other page invites login. -->
+        <div
+          v-if="isAccount"
+          class="absolute inset-0 flex items-center justify-center bg-white/40 px-4"
+        >
+          <div class="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 max-w-sm text-center">
+            <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+              <Lock class="w-7 h-7 text-gray-400" />
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-1">Account is locked</h3>
+            <p class="text-gray-600 text-sm">
+              Your profile, billing and subscription live here once you are a student.
+            </p>
+          </div>
+        </div>
+
+        <!-- pointer-events-none on the wrapper lets scrolling pass through to the page
+             beneath; only the card re-enables pointer events, so Login is the one
+             clickable thing on screen. -->
+        <div
+          v-else-if="showLoginPrompt"
+          class="absolute inset-0 flex items-center justify-center pointer-events-none px-4 z-40"
+        >
+          <div class="pointer-events-auto bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 max-w-sm text-center">
+            <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-[#0055A4]/10 flex items-center justify-center">
+              <Lock class="w-7 h-7 text-[#0055A4]" />
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-1">Log in to use the portal</h3>
+            <p class="text-gray-600 text-sm mb-6">
+              Keep scrolling to look around. To open a course or use any control, log in and
+              choose a plan to become a student.
+            </p>
+            <router-link
+              to="/login"
+              class="block w-full px-6 py-3 bg-[#0055A4] hover:bg-[#003d7a] text-white rounded-lg font-bold transition-colors"
+            >
+              Login
+            </router-link>
+          </div>
+        </div>
       </div>
     </div>
 
-    <DemoGateModal />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { BarChart3, BookOpen, User, FileText, Menu, Lock, GraduationCap, ArrowLeft } from 'lucide-vue-next'
 import { useSettingsStore } from '../stores/settings'
-import { useDemoGate } from '../composables/useDemoGate'
-import DemoGateModal from '../components/DemoGateModal.vue'
+
+// How long a visitor gets to look at a page before the login prompt appears.
+const PROMPT_DELAY_MS = 2000
 
 const route = useRoute()
 const settingsStore = useSettingsStore()
-const gate = useDemoGate()
 const isSidebarOpen = ref(false)
+const scroller = ref(null)
+const showLoginPrompt = ref(false)
+let promptTimer = null
 
-// A null path marks a locked item: it renders greyed with a lock and opens the gate.
+// Every page is reachable — the visitor browses the whole portal, read-only.
 const demoMenu = ref([
-  { name: 'Dashboard', path: null, icon: BarChart3 },
-  { name: 'Courses', path: '/demo/courses', icon: BookOpen },
+  { name: 'Dashboard', path: '/demo/dashboard', icon: BarChart3 },
+  { name: 'My Courses', path: '/demo/courses', icon: BookOpen },
   { name: 'Exam Prep', path: '/demo/exam-prep', icon: GraduationCap },
-  { name: 'Homework', path: null, icon: FileText },
-  { name: 'Account', path: null, icon: User },
+  { name: 'Homework', path: '/demo/homework', icon: FileText },
+  { name: 'Account', path: '/demo/account', icon: User },
 ])
 
+const isAccount = computed(() => route.path.startsWith('/demo/account'))
+
 const pageTitle = computed(() => {
-  const match = demoMenu.value.find(item => item.path && route.path.startsWith(item.path))
-  return match ? match.name : 'Student Portal Demo'
+  const match = demoMenu.value
+    .filter(item => item.path)
+    .find(item => route.path.startsWith(item.path))
+  return match ? match.name : 'Student Portal'
 })
 
 const isActive = (path) => route.path.startsWith(path)
 
+const restartPromptTimer = () => {
+  clearTimeout(promptTimer)
+  showLoginPrompt.value = false
+
+  if (isAccount.value) return
+
+  promptTimer = setTimeout(() => { showLoginPrompt.value = true }, PROMPT_DELAY_MS)
+}
+
+// Each page gets its own look-around window, and the scroll position resets with it.
+watch(() => route.path, () => {
+  if (scroller.value) scroller.value.scrollTop = 0
+  restartPromptTimer()
+})
+
+onBeforeUnmount(() => clearTimeout(promptTimer))
+
 onMounted(() => {
+  restartPromptTimer()
   settingsStore.fetchSettings()
 })
 </script>
