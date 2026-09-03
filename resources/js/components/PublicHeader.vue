@@ -4,16 +4,9 @@
       <div class="header-inner flex justify-between items-center w-full">
         <!-- Logo -->
         <div class="flex items-center w-auto md:w-[200px] shrink-0">
-          <a href="/" class="flex items-center">
-            <img 
-              v-if="settingsStore.siteLogo" 
-              :src="logoUrl" 
-              :alt="settingsStore.siteName" 
-              class="h-8 w-auto"
-            >
-            <span v-else class="text-lg font-black uppercase tracking-tighter" style="color: rgb(0, 85, 164)">
-              {{ settingsStore.siteName }}
-            </span>
+          <a href="/" class="flex items-center gap-2.5">
+            <img src="/images/brand-mark.png" alt="" class="brand-mark-img w-auto shrink-0">
+            <span class="brand-wordmark">Fluence <span class="accent">Française</span></span>
           </a>
         </div>
 
@@ -65,16 +58,9 @@
       <!-- Menu Content -->
       <div class="relative w-full h-full flex flex-col p-8 bg-white">
         <div class="flex justify-between items-center mb-12">
-          <a href="/" class="flex items-center shrink-0">
-             <img 
-               v-if="settingsStore.siteLogo" 
-               :src="logoUrl" 
-               :alt="settingsStore.siteName" 
-               class="h-8 w-auto"
-             >
-             <span v-else class="text-xl font-black uppercase tracking-tighter text-[#0055A4]">
-               {{ settingsStore.siteName }}
-             </span>
+          <a href="/" class="flex items-center gap-2.5 shrink-0">
+            <img src="/images/brand-mark.png" alt="" class="brand-mark-img w-auto shrink-0">
+            <span class="brand-wordmark">Fluence <span class="accent">Française</span></span>
           </a>
           <button @click="closeMobileMenu" class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-900 transition">
             <i class="fas fa-times text-2xl"></i>
@@ -129,11 +115,6 @@ onMounted(() => {
   settingsStore.fetchSettings()
 })
 
-const logoUrl = computed(() => {
-  return settingsStore.siteLogo 
-    ? `${import.meta.env.VITE_API_URL}/storage/${settingsStore.siteLogo}` 
-    : ''
-})
 
 const dashboardLink = computed(() => {
   if (auth.user?.user_type === 'admin' || auth.user?.user_type === 'super_admin') {
@@ -157,6 +138,21 @@ const closeMobileMenu = () => {
 </script>
 
 <style scoped>
+.brand-wordmark {
+    font-family: 'Urbanist', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+    color: #002654;
+    line-height: 1;
+    white-space: nowrap;
+}
+.brand-wordmark .accent { color: #EF4135; }
+.brand-mark-img { height: 40px; }
+@media (max-width: 768px) {
+    .brand-wordmark { font-size: 0.9375rem; }
+    .brand-mark-img { height: 32px; }
+}
 .main-header {
     height: 65px;
     display: flex;

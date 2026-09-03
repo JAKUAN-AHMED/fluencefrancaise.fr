@@ -20,14 +20,21 @@
     .brand-wordmark {
         font-family: 'Urbanist', system-ui, sans-serif;
         font-weight: 700;
-        font-size: 1.32rem;
+        font-size: 1rem;
         letter-spacing: -0.01em;
         color: #002654;
         line-height: 1;
         white-space: nowrap;
     }
     .brand-wordmark .accent { color: #EF4135; }
-    .brand-flag { display:inline-flex; height:22px; width:7px; border-radius:2px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.12); }
+    .brand-flag { display:inline-flex; height:25px; width:8px; border-radius:2px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.12); }
+    .brand-mark-img { height: 40px; }
+    /* Slightly smaller on phones so the wordmark still clears the hamburger. */
+    @media (max-width: 768px) {
+        .brand-wordmark { font-size: 0.9375rem; }
+        .brand-mark-img { height: 32px; }
+        .brand-flag { height:23px; width:7px; }
+    }
     .nav-link {
         font-size: 13px !important;
         font-weight: 700 !important;
@@ -103,12 +110,8 @@
             <!-- Logo -->
             <div class="flex items-center w-auto md:w-[230px] shrink-0">
                 <a href="/" class="flex items-center gap-2.5">
-                    @if(isset($settings['site_logo']) && $settings['site_logo'])
-                        <img src="{{ asset('storage/' . $settings['site_logo']) }}" alt="{{ $siteName }}" class="h-14 w-auto">
-                    @else
-                        <span class="brand-flag"><i style="flex:1;background:#0055A4"></i><i style="flex:1;background:#fff"></i><i style="flex:1;background:#EF4135"></i></span>
-                        <span class="brand-wordmark">Fluence<span class="accent">.</span></span>
-                    @endif
+                    <img src="{{ asset('images/brand-mark.png') }}" alt="" class="brand-mark-img w-auto shrink-0">
+                    <span class="brand-wordmark">Fluence <span class="accent">Française</span></span>
                 </a>
             </div>
 
@@ -158,12 +161,8 @@
         <div class="h-1.5 absolute top-0 left-0 right-0" style="background:linear-gradient(90deg,#0055A4 0 33.3%,#fff 33.3% 66.6%,#EF4135 66.6% 100%)"></div>
         <div class="flex justify-between items-center mb-12 mt-4">
             <a href="/" class="flex items-center gap-2.5 shrink-0">
-                @if(isset($settings['site_logo']) && $settings['site_logo'])
-                    <img src="{{ asset('storage/' . $settings['site_logo']) }}" alt="{{ $siteName }}" class="h-9 w-auto">
-                @else
-                    <span class="brand-flag"><i style="flex:1;background:#0055A4"></i><i style="flex:1;background:#fff"></i><i style="flex:1;background:#EF4135"></i></span>
-                    <span class="brand-wordmark">Fluence<span class="accent">.</span></span>
-                @endif
+                <img src="{{ asset('images/brand-mark.png') }}" alt="" class="brand-mark-img w-auto shrink-0">
+                <span class="brand-wordmark">Fluence <span class="accent">Française</span></span>
             </a>
             <button id="closeMobileMenu" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-[#002654] transition">
                 <i class="fas fa-times text-2xl"></i>
