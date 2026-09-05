@@ -140,8 +140,8 @@ const closeMobileMenu = () => {
 <style scoped>
 .brand-wordmark {
     font-family: 'Urbanist', system-ui, sans-serif;
-    font-weight: 700;
-    font-size: 1rem;
+    font-weight: 400;
+    font-size: 18px;
     letter-spacing: -0.01em;
     color: #002654;
     line-height: 1;
